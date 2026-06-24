@@ -1,30 +1,10 @@
 import type { ClipboardCopyPayload } from './types';
 
-export const COPY_MESSAGE_SOURCE = 'clipboard-history';
-export const COPY_MESSAGE_TYPE = 'CLIPBOARD_CAPTURE';
+export const COPY_CAPTURE_EVENT = 'clipboard-history:capture';
 
-export interface CopyCaptureMessage {
-  source: typeof COPY_MESSAGE_SOURCE;
-  type: typeof COPY_MESSAGE_TYPE;
-  payload: ClipboardCopyPayload;
-}
-
-export function isCopyCaptureMessage(
-  data: unknown
-): data is CopyCaptureMessage {
-  if (!data || typeof data !== 'object') {
-    return false;
-  }
-
-  const message = data as Partial<CopyCaptureMessage>;
-  if (
-    message.source !== COPY_MESSAGE_SOURCE ||
-    message.type !== COPY_MESSAGE_TYPE
-  ) {
-    return false;
-  }
-
-  const payload = message.payload;
+export function isValidCopyPayload(
+  payload: unknown
+): payload is ClipboardCopyPayload {
   if (!payload || typeof payload !== 'object') {
     return false;
   }

@@ -1,41 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { isCopyCaptureMessage } from '../messaging';
+import { isValidCopyPayload } from '../messaging';
 
 describe('messaging', () => {
-  it('accepts valid copy capture messages', () => {
+  it('accepts valid copy payloads', () => {
     expect(
-      isCopyCaptureMessage({
-        source: 'clipboard-history',
-        type: 'CLIPBOARD_CAPTURE',
-        payload: {
-          text: 'hello',
-          sourceUrl: 'https://example.com',
-        },
+      isValidCopyPayload({
+        text: 'hello',
+        sourceUrl: 'https://example.com',
       })
     ).toBe(true);
   });
 
-  it('rejects messages from other sources', () => {
+  it('accepts file urls as source', () => {
     expect(
-      isCopyCaptureMessage({
-        source: 'other-extension',
-        type: 'CLIPBOARD_CAPTURE',
-        payload: {
-          text: 'hello',
-          sourceUrl: 'https://example.com',
-        },
+      isValidCopyPayload({
+        text: 'hello',
+        sourceUrl: 'file:///Users/test/page.html',
       })
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it('rejects empty payloads', () => {
     expect(
-      isCopyCaptureMessage({
-        source: 'clipboard-history',
-        type: 'CLIPBOARD_CAPTURE',
-        payload: {
-          sourceUrl: 'https://example.com',
-        },
+      isValidCopyPayload({
+        sourceUrl: 'https://example.com',
       })
     ).toBe(false);
   });

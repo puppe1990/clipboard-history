@@ -10,12 +10,35 @@ const app: HTMLElement = root;
 
 let toastTimeout: ReturnType<typeof setTimeout> | undefined;
 
-function getHostname(sourceUrl: string): string {
+function getSourceLabel(sourceUrl: string): string {
+  if (sourceUrl.startsWith('file://')) {
+    const fileName = sourceUrl.split('/').pop();
+    return fileName ? decodeURIComponent(fileName) : 'arquivo local';
+  }
+
   try {
     return new URL(sourceUrl).hostname;
   } catch {
     return 'origem desconhecida';
   }
+}
+
+function createFileAccessBanner(): HTMLElement {
+  const banner = document.createElement('div');
+  banner.className =
+    'px-4 py-3 bg-amber-50 border-b border-amber-200 text-xs text-amber-900 leading-relaxed';
+
+  const title = document.createElement('p');
+  title.className = 'font-medium';
+  title.textContent = 'Arquivo local detectado';
+
+  const message = document.createElement('p');
+  message.className = 'mt-1';
+  message.innerHTML =
+    'Ative <strong>Permitir acesso a URLs de arquivos</strong> em chrome://extensions e recarregue esta página.';
+
+  banner.append(title, message);
+  return banner;
 }
 
 function showToast(message: string): void {
@@ -79,7 +102,7 @@ function renderEntry(entry: ClipboardEntry): HTMLElement {
 
     const details = document.createElement('p');
     details.className = 'text-xs text-zinc-500';
-    details.textContent = `${formatRelativeTime(entry.createdAt)} · ${getHostname(entry.sourceUrl)}`;
+    details.textContent = `${formatRelativeTime(entry.createdAt)} · ${getSourceLabel(entry.sourceUrl)}`;
 
     meta.append(badge, details);
     content.append(image, meta);
@@ -90,7 +113,7 @@ function renderEntry(entry: ClipboardEntry): HTMLElement {
 
     const details = document.createElement('p');
     details.className = 'mt-1 text-xs text-zinc-500';
-    details.textContent = `${formatRelativeTime(entry.createdAt)} · ${getHostname(entry.sourceUrl)}`;
+    details.textContent = `${formatRelativeTime(entry.createdAt)} · ${getSourceLabel(entry.sourceUrl)}`;
 
     content.append(preview, details);
   }
@@ -121,7 +144,10 @@ function renderEmptyState(): HTMLElement {
   return empty;
 }
 
-function renderHistory(entries: ClipboardEntry[]): void {
+function renderHistory(
+  entries: ClipboardEntry[],
+  showFileAccessBanner = false
+): void {
   app.replaceChildren();
 
   const shell = document.createElement('div');
@@ -160,18 +186,27 @@ function renderHistory(entries: ClipboardEntry[]): void {
     }
   }
 
-  shell.append(header, list);
+  shell.append(header);
+  if (showFileAccessBanner) {
+    shell.append(createFileAccessBanner());
+  }
+  shell.append(list);
   app.append(shell);
 }
 
 function loadHistory(): void {
-  chrome.runtime.sendMessage({ type: 'GET_HISTORY' }, (response) => {
-    if (response?.success && Array.isArray(response.data)) {
-      renderHistory(response.data as ClipboardEntry[]);
-      return;
-    }
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const activeTabUrl = tabs[0]?.url ?? '';
+    const showFileAccessBanner = activeTabUrl.startsWith('file://');
 
-    renderHistory([]);
+    chrome.runtime.sendMessage({ type: 'GET_HISTORY' }, (response) => {
+      const entries =
+        response?.success && Array.isArray(response.data)
+          ? (response.data as ClipboardEntry[])
+          : [];
+
+      renderHistory(entries, showFileAccessBanner);
+    });
   });
 }
 

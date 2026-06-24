@@ -1,15 +1,10 @@
 import { parseClipboardData } from '../shared/clipboardParser';
-import { COPY_MESSAGE_SOURCE, COPY_MESSAGE_TYPE } from '../shared/messaging';
+import { COPY_CAPTURE_EVENT } from '../shared/messaging';
 import type { ClipboardCopyPayload } from '../shared/types';
 
 function relayCopyPayload(payload: ClipboardCopyPayload): void {
-  window.postMessage(
-    {
-      source: COPY_MESSAGE_SOURCE,
-      type: COPY_MESSAGE_TYPE,
-      payload,
-    },
-    window.location.origin
+  document.dispatchEvent(
+    new CustomEvent(COPY_CAPTURE_EVENT, { detail: payload })
   );
 }
 

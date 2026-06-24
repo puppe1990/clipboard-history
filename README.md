@@ -51,6 +51,17 @@ src/
 └── shared/       # Lógica testável (history, parser, storage)
 ```
 
+## Arquivos locais (`file://`)
+
+Para copiar de HTML aberto no disco (ex.: `file:///Users/.../pagina.html`), o Chrome exige uma permissão manual:
+
+1. Abra `chrome://extensions`
+2. Encontre **Clipboard History**
+3. Ative **Permitir acesso a URLs de arquivos**
+4. Recarregue a página HTML
+
+O popup mostra um aviso amarelo quando você está em um arquivo local sem essa permissão.
+
 ## Limitações
 
 - Não funciona em páginas restritas (`chrome://`, Chrome Web Store, etc.)

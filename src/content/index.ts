@@ -1,4 +1,4 @@
-import { isCopyCaptureMessage } from '../shared/messaging';
+import { COPY_CAPTURE_EVENT, isValidCopyPayload } from '../shared/messaging';
 import type { ClipboardCopyPayload } from '../shared/types';
 
 function sendCopyToBackground(payload: ClipboardCopyPayload): void {
@@ -16,24 +16,17 @@ function sendCopyToBackground(payload: ClipboardCopyPayload): void {
   );
 }
 
-function handleWindowMessage(event: MessageEvent): void {
-  if (event.source !== window) {
+function handleCaptureEvent(event: Event): void {
+  const detail = (event as CustomEvent).detail;
+  if (!isValidCopyPayload(detail)) {
     return;
   }
 
-  if (event.origin !== window.location.origin) {
-    return;
-  }
-
-  if (!isCopyCaptureMessage(event.data)) {
-    return;
-  }
-
-  sendCopyToBackground(event.data.payload);
+  sendCopyToBackground(detail);
 }
 
 export function onExecute(): void {
-  window.addEventListener('message', handleWindowMessage);
+  document.addEventListener(COPY_CAPTURE_EVENT, handleCaptureEvent);
 }
 
 onExecute();
