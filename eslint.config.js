@@ -4,6 +4,7 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import tseslint from 'typescript-eslint';
 
 const sourceFiles = ['src/**/*.{ts,js}', 'vite.config.ts', 'vitest.config.ts'];
+const nodeFiles = ['scripts/**/*.mjs'];
 
 export default tseslint.config(
   {
@@ -20,6 +21,16 @@ export default tseslint.config(
         ...globals.browser,
         ...globals.es2021,
         chrome: 'readonly',
+      },
+    },
+  },
+  {
+    files: nodeFiles,
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
       },
     },
   },
