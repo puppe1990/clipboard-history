@@ -1,30 +1,39 @@
-import { parseClipboardData } from '../shared/clipboardParser';
+import { isCopyCaptureMessage } from '../shared/messaging';
+import type { ClipboardCopyPayload } from '../shared/types';
 
-document.addEventListener(
-  'copy',
-  (event) => {
-    const dataTransfer = event.clipboardData;
-    if (!dataTransfer) {
-      return;
+function sendCopyToBackground(payload: ClipboardCopyPayload): void {
+  chrome.runtime.sendMessage(
+    {
+      type: 'CLIPBOARD_COPY',
+      payload,
+    },
+    () => {
+      const error = chrome.runtime.lastError;
+      if (error) {
+        console.warn('[clipboard-history]', error.message);
+      }
     }
+  );
+}
 
-    void handleCopy(dataTransfer);
-  },
-  true
-);
-
-async function handleCopy(dataTransfer: DataTransfer): Promise<void> {
-  const parsed = await parseClipboardData(dataTransfer, window.getSelection());
-  if (!parsed.text && !parsed.imageDataUrl) {
+function handleWindowMessage(event: MessageEvent): void {
+  if (event.source !== window) {
     return;
   }
 
-  chrome.runtime.sendMessage({
-    type: 'CLIPBOARD_COPY',
-    payload: {
-      text: parsed.text,
-      imageDataUrl: parsed.imageDataUrl,
-      sourceUrl: location.href,
-    },
-  });
+  if (event.origin !== window.location.origin) {
+    return;
+  }
+
+  if (!isCopyCaptureMessage(event.data)) {
+    return;
+  }
+
+  sendCopyToBackground(event.data.payload);
 }
+
+export function onExecute(): void {
+  window.addEventListener('message', handleWindowMessage);
+}
+
+onExecute();

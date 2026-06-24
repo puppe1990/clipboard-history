@@ -4,5 +4,13 @@ import tailwindcss from '@tailwindcss/vite';
 import manifest from './manifest.json';
 
 export default defineConfig({
-  plugins: [tailwindcss(), crx({ manifest })],
+  plugins: [
+    tailwindcss(),
+    crx({
+      manifest,
+      contentScripts: {
+        standaloneFiles: ['src/content/main-world.ts', 'src/content/index.ts'],
+      },
+    }),
+  ],
 });

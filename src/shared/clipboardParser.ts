@@ -1,3 +1,4 @@
+import { extractCopyTextSync } from './copyCapture';
 import { MAX_IMAGE_BYTES } from './constants';
 
 export interface ParsedClipboardContent {
@@ -40,17 +41,11 @@ export async function readImageItem(
   return blobToDataUrl(file);
 }
 
-function readSelectedText(selection: Selection | null | undefined): string {
-  const text = selection?.toString().trim();
-  return text ?? '';
-}
-
 export async function parseClipboardData(
   dataTransfer: DataTransfer,
   selection?: Selection | null
 ): Promise<ParsedClipboardContent> {
-  const text =
-    dataTransfer.getData('text/plain').trim() || readSelectedText(selection);
+  const text = extractCopyTextSync(dataTransfer, selection);
   const imageDataUrl = await readImageItem(dataTransfer);
   const result: ParsedClipboardContent = {};
 
