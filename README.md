@@ -1,81 +1,84 @@
 # Clipboard History
 
-Extensão Chrome que salva automaticamente o que você copia no navegador e exibe o histórico no popup.
+Chrome extension that automatically saves what you copy in the browser and shows the history in the popup.
 
-## Funcionalidades
+> Portuguese version: [README.pt-BR.md](./README.pt-BR.md)
 
-- Captura **texto** e **imagens** ao copiar em qualquer site
-- Histórico persistente com `chrome.storage.local`
-- Popup para visualizar, recopiar, excluir itens ou limpar tudo
-- Deduplicação de entradas repetidas
-- Limite de 100 itens no histórico
+## Features
 
-## Instalação (desenvolvimento)
+- Captures **text** and **images** when you copy on any site
+- Persistent history with `chrome.storage.local`
+- Popup to view, re-copy, delete items, or clear all
+- Deduplicates repeated entries
+- Keeps up to 100 items in history
+
+## Development install
 
 ```bash
 npm install
 npm run build
 ```
 
-1. Abra `chrome://extensions`
-2. Ative o **Modo do desenvolvedor**
-3. Clique em **Carregar sem compactação**
-4. Selecione a pasta `dist`
+1. Open `chrome://extensions`
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select the `dist` folder
 
-## Uso
+## Usage
 
-1. Copie texto ou imagem em qualquer página
-2. Clique no ícone da extensão
-3. Selecione um item para recopiar para a área de transferência
+1. Copy text or an image on any page
+2. Click the extension icon
+3. Select an item to copy it back to the clipboard
 
 ## Scripts
 
-| Comando                | Descrição                      |
-| ---------------------- | ------------------------------ |
-| `npm run dev`          | Desenvolvimento com hot reload |
-| `npm run build`        | Gera a extensão em `dist/`     |
-| `npm test`             | Testes em watch (Vitest)       |
-| `npm run test:run`     | Testes uma vez                 |
-| `npm run lint`         | ESLint                         |
-| `npm run format`       | Prettier (escreve)             |
-| `npm run format:check` | Verifica formatação            |
-| `npm run typecheck`    | TypeScript                     |
+| Command                | Description                      |
+| ---------------------- | -------------------------------- |
+| `npm run dev`          | Dev server with hot reload       |
+| `npm run build`        | Build extension to `dist/`       |
+| `npm test`             | Run tests in watch mode (Vitest) |
+| `npm run test:run`     | Run tests once                   |
+| `npm run lint`         | ESLint                           |
+| `npm run format`       | Prettier (write)                 |
+| `npm run format:check` | Check formatting                 |
+| `npm run typecheck`    | TypeScript                       |
+| `npm run icons`        | Regenerate extension icons       |
 
-## Arquitetura
+## Architecture
 
 ```
 src/
-├── content/      # Escuta eventos de copy nas páginas
-├── background/   # Persiste histórico no storage
-├── popup/        # UI do histórico (Tailwind CSS)
-└── shared/       # Lógica testável (history, parser, storage)
+├── content/      # Listens for copy events on pages
+├── background/   # Persists history to storage
+├── popup/        # History UI (Tailwind CSS)
+└── shared/       # Testable logic (history, parser, storage)
 ```
 
-## Arquivos locais (`file://`)
+## Local files (`file://`)
 
-Para copiar de HTML aberto no disco (ex.: `file:///Users/.../pagina.html`), o Chrome exige uma permissão manual:
+To capture copies from HTML opened from disk (e.g. `file:///Users/.../page.html`), Chrome requires a manual permission:
 
-1. Abra `chrome://extensions`
-2. Encontre **Clipboard History**
-3. Ative **Permitir acesso a URLs de arquivos**
-4. Recarregue a página HTML
+1. Open `chrome://extensions`
+2. Find **Clipboard History**
+3. Enable **Allow access to file URLs**
+4. Reload the HTML page
 
-O popup mostra um aviso amarelo quando você está em um arquivo local sem essa permissão.
+The popup shows a yellow warning when you are on a local file without that permission.
 
-## Limitações
+## Limitations
 
-- Não funciona em páginas restritas (`chrome://`, Chrome Web Store, etc.)
-- Não captura cópias feitas fora do navegador
-- Imagens maiores que 500 KB são ignoradas
-- Alguns sites não expõem imagem no evento `copy`
+- Does not work on restricted pages (`chrome://`, Chrome Web Store, etc.)
+- Does not capture copies made outside the browser
+- Images larger than 500 KB are ignored
+- Some sites do not expose images in the `copy` event
 
-## Qualidade
+## Quality
 
-- Testes com Vitest (TDD)
+- Vitest tests (TDD)
 - ESLint + Prettier
-- Pre-commit com Husky e lint-staged
-- CI no GitHub Actions
+- Husky + lint-staged pre-commit hooks
+- GitHub Actions CI
 
-## Licença
+## License
 
 MIT
